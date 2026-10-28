@@ -27,15 +27,15 @@ import MetaUtils (todo, todoImpl)
 
 -- foldr (-) 0 [1, 2, 3] :: Integer
 predictedRight :: Integer
-predictedRight = todo "1.1 foldr"
+predictedRight = 2
 
 -- foldl (-) 0 [1, 2, 3] :: Integer
 predictedLeft :: Integer
-predictedLeft = todo "1.1 foldl"
+predictedLeft = -6
 
 -- foldMap (\x -> [x,x]) (Just (2 :: Integer))
 predictedFoldMap :: [Integer]
-predictedFoldMap = todo "1.1 foldMap"
+predictedFoldMap = [2,2]
 
 
 -- 1.2. Найдите контрпример к E.brokenIncome в src/Examples.hs.
@@ -43,7 +43,7 @@ predictedFoldMap = todo "1.1 foldMap"
 -- «заработано минус сумма всех расходов». Расходы и заработок неотрицательны.
 
 incomeCounterexample :: (Integer, [Integer])
-incomeCounterexample = todo "1.2"
+incomeCounterexample = (0, [1])
 
 
 -- 1.3. Завершите поиск элемента через foldr.
@@ -52,7 +52,7 @@ incomeCounterexample = todo "1.2"
 -- Для бесконечного списка без элемента завершение не требуется.
 
 elem' :: Eq a => a -> [a] -> Bool
-elem' x = foldr (\y rest -> todo "1.3 шаг") False
+elem' x = foldr (\y rest ->if y == x then True else rest) False
 
 
 -- 1.4. Прочитайте E.sizeViaFoldMap. Через foldMap и Sum подсчитайте
@@ -62,7 +62,7 @@ countMatching :: (Foldable t, Num n) => (a -> Bool) -> t a -> n
 countMatching p = getSum . foldMap contribution
   where
     contribution x
-      | p x = todo "1.4 вклад подходящего элемента"
+      | p x = Sum 1
       | otherwise = Sum 0
 
 
@@ -76,8 +76,11 @@ countMatching p = getSum . foldMap contribution
 data Tree a = Leaf | Node a [Tree a]
   deriving (Eq, Show)
 
-todoImpl ''Foldable ''Tree
-
+instance Foldable Tree where
+  foldMap :: Monoid m => (a -> m) -> Tree a -> m
+  foldMap f tree = case tree of
+    Leaf -> mempty
+    Node x children -> f x <> foldMap (foldMap f) children
 
 -- 1.6. Самостоятельно составьте цепочку преобразований через (&):
 -- посчитайте вхождения каждого слова в списке строк.
@@ -91,4 +94,4 @@ todoImpl ''Foldable ''Tree
 --   make run ARGS=wc < text/alice.txt
 
 wordCount :: [String] -> Map String Int
-wordCount = todo "1.6"
+wordCount ss = ss & E.tokens & map (\w -> (w, 1)) & Map.fromListWith (+)
